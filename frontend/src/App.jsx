@@ -18,7 +18,8 @@ import {
   Compass
 } from 'lucide-react';
 
-const BACKEND_URL = 'http://localhost:5000';
+// Live production Render URL
+const BACKEND_URL = 'https://trademind-ai-ye41.onrender.com';
 
 function App() {
   const [balance, setBalance] = useState({ usdtBalance: 0, allAssets: [] });
