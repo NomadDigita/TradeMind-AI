@@ -1,0 +1,20 @@
+{
+  "name": "trademind-backend",
+  "version": "1.0.0",
+  "description": "Autonomous AI Agent translating news and sentiment into real crypto trade execution",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "@tavily/core": "^0.0.2",
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
