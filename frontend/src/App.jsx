@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { 
   Bot, 
   Activity, 
@@ -385,6 +386,7 @@ function App() {
         </div>
 
       </div>
+      <SpeedInsights />
     </div>
   );
 }
