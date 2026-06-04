@@ -17,6 +17,7 @@ import {
   Terminal,
   Compass
 } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 
 // Live production Render URL
 const BACKEND_URL = 'https://trademind-ai-ye41.onrender.com';
@@ -385,6 +386,7 @@ function App() {
         </div>
 
       </div>
+      <Analytics />
     </div>
   );
 }
