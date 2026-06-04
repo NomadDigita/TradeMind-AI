@@ -2,69 +2,109 @@
 
 @layer base {
   body {
-    background-color: #060814;
+    background-color: #040610;
     color: #f8fafc;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
   }
 }
 
-/* Custom Web3 Ambient Glows */
+/* Dynamic Ambient Liquid Glowing Spheres */
 .liquid-glow-1 {
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
-  filter: blur(60px);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(80px);
 }
 
 .liquid-glow-2 {
-  background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, rgba(0,0,0,0) 70%);
-  filter: blur(60px);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(80px);
 }
 
 .liquid-glow-3 {
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(0,0,0,0) 70%);
-  filter: blur(50px);
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(0,0,0,0) 70%);
+  filter: blur(70px);
 }
 
-/* High-Grade Web3 Glassmorphism Card Style */
+/* Premium 3D Swimming Animation */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+@keyframes float-delayed {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(6px) rotate(-0.5deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.animate-swim {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-swim-delayed {
+  animation: float-delayed 9s ease-in-out infinite;
+}
+
+/* High-Grade Web3 Glassmorphic Card Overlay */
 .glass-card {
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 15px 35px 0 rgba(0, 0, 0, 0.6);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(10, 16, 32, 0.4);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.7);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
   border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 20px 40px 0 rgba(0, 0, 0, 0.8), 0 0 15px rgba(59, 130, 246, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 30px 60px 0 rgba(0, 0, 0, 0.9), 0 0 30px rgba(59, 130, 246, 0.15);
+  transform: translateY(-4px) scale(1.01);
 }
 
-/* Translucent Input Fields */
+/* Web3 Glass Inputs */
 .glass-input {
-  background: rgba(10, 15, 30, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.2s ease-in-out;
+  background: rgba(4, 6, 14, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-input:focus {
-  border-color: rgba(59, 130, 246, 0.5);
-  background: rgba(10, 15, 30, 0.8);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(4, 6, 14, 0.9);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
-/* Custom Scrollbar for sleek UI */
-::-webkit-scrollbar {
-  width: 6px;
+/* Custom Ambient Glass Snowfall Background Layer */
+@keyframes snow {
+  0% { transform: translateY(-10px) translateX(0px); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(100vh) translateX(30px); opacity: 0; }
 }
-::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+
+.ambient-snow-field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
 }
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+
+.snow-particle {
+  position: absolute;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%);
+  border-radius: 50%;
+  animation: snow linear infinite;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
+
+/* Generate multiple offset snow particles */
+.snow-particle:nth-child(1) { left: 10%; size: 4px; animation-duration: 15s; animation-delay: 0s; width: 4px; height: 4px; }
+.snow-particle:nth-child(2) { left: 25%; size: 6px; animation-duration: 18s; animation-delay: 3s; width: 6px; height: 6px; }
+.snow-particle:nth-child(3) { left: 45%; size: 3px; animation-duration: 12s; animation-delay: 1s; width: 3px; height: 3px; }
+.snow-particle:nth-child(4) { left: 60%; size: 5px; animation-duration: 22s; animation-delay: 5s; width: 5px; height: 5px; }
+.snow-particle:nth-child(5) { left: 75%; size: 4px; animation-duration: 16s; animation-delay: 2s; width: 4px; height: 4px; }
+.snow-particle:nth-child(6) { left: 90%; size: 6px; animation-duration: 20s; animation-delay: 4s; width: 6px; height: 6px; }

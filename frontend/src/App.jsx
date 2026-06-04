@@ -15,10 +15,10 @@ import {
   ShieldCheck,
   CircleDot,
   Terminal,
-  Compass
+  Compass,
+  PlayCircle
 } from 'lucide-react';
 
-// Live production Render URL
 const BACKEND_URL = 'https://trademind-ai-ye41.onrender.com';
 
 function App() {
@@ -27,6 +27,7 @@ function App() {
   const [searchAsset, setSearchAsset] = useState('BTC');
   const [autoExecute, setAutoExecute] = useState(false);
   const [tradeAmount, setTradeAmount] = useState(10);
+  const [isSimulation, setIsSimulation] = useState(true); // Default to Simulation Mode for public users
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [isFetchingData, setIsFetchingData] = useState(false);
@@ -73,7 +74,8 @@ function App() {
       const response = await axios.post(`${BACKEND_URL}/api/v1/analyzer/analyze`, {
         asset: searchAsset.trim().toUpperCase(),
         autoExecute: autoExecute,
-        amount: parseFloat(tradeAmount)
+        amount: parseFloat(tradeAmount),
+        isSimulation: isSimulation // Pass target execution mode
       });
       
       setAnalysisResult(response.data);
@@ -89,27 +91,42 @@ function App() {
   return (
     <div className="relative min-h-screen overflow-x-hidden px-4 py-8 md:px-12 md:py-10">
       
-      {/* Liquid 3D Background Lighting Blobs */}
+      {/* Dynamic Digital Snowfall Layer */}
+      <div className="ambient-snow-field">
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+      </div>
+
+      {/* Background radial blobs */}
       <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] liquid-glow-1 pointer-events-none z-0"></div>
       <div className="absolute bottom-[10%] right-[-10%] w-[45vw] h-[45vw] liquid-glow-2 pointer-events-none z-0"></div>
       <div className="absolute top-[35%] left-[30%] w-[35vw] h-[35vw] liquid-glow-3 pointer-events-none z-0"></div>
 
       <div className="relative max-w-7xl mx-auto z-10">
         
-        {/* Apple Grade Premium Header */}
+        {/* Apple Premium Web3 Header */}
         <header className="flex flex-col md:flex-row justify-between items-center mb-12 pb-8 border-b border-white/5 gap-6">
           <div className="flex items-center gap-4">
-            <div className="relative flex items-center justify-center p-3.5 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.4)] text-white">
-              <Bot className="w-8 h-8" />
-              <div className="absolute inset-0 rounded-2xl border border-white/20 animate-pulse"></div>
+            
+            {/* Custom High-Grade Web3 Neural Vector Logo */}
+            <div className="relative flex items-center justify-center p-3.5 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl shadow-[0_0_35px_rgba(59,130,246,0.5)] text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+              <div className="absolute inset-0 rounded-2xl border border-white/25 animate-pulse"></div>
             </div>
+
             <div>
               <h1 className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-400">
                 TradeMind AI
               </h1>
               <p className="text-xs font-semibold tracking-wider uppercase text-blue-400/80 mt-0.5 flex items-center gap-1.5">
                 <CircleDot className="w-3.5 h-3.5 animate-pulse" />
-                Autonomous Sentiment-to-Execution Terminal
+                Autonomous Sentiment-to-Execution Hub
               </p>
             </div>
           </div>
@@ -125,7 +142,7 @@ function App() {
             <button 
               onClick={fetchDashboardData}
               disabled={isFetchingData}
-              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 rounded-xl text-sm font-bold transition-all disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-4 h-4 ${isFetchingData ? 'animate-spin' : ''}`} />
               Sync Data
@@ -133,11 +150,11 @@ function App() {
           </div>
         </header>
 
-        {/* Dashboard Grid Layout */}
+        {/* Dashboard swimming grids layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* Left Column: Metrics & Control Panels */}
-          <div className="lg:col-span-1 space-y-8">
+          {/* Left Column (Swimming Animation 1) */}
+          <div className="lg:col-span-1 space-y-8 animate-swim">
             
             {/* Elegant Portfolio Liquid Card */}
             <div className="glass-card p-7 rounded-3xl">
@@ -176,6 +193,22 @@ function App() {
                 Agent Parameters
               </h2>
               <form onSubmit={handleRunPipeline} className="space-y-6">
+                
+                {/* Simulated Mode Selector */}
+                <div className="flex items-center justify-between p-4 bg-slate-950/60 rounded-xl border border-white/5">
+                  <div>
+                    <span className="text-sm font-bold block text-slate-200">Execution Mode</span>
+                    <span className="text-2xs text-slate-400 block mt-0.5">Toggle between Live & Simulation account</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsSimulation(!isSimulation)}
+                    className={`px-3 py-1.5 rounded-lg text-2xs font-black tracking-wider transition-all cursor-pointer ${isSimulation ? 'bg-blue-600/30 text-blue-400 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.15)]' : 'bg-emerald-600/30 text-emerald-400 border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.15)]'}`}
+                  >
+                    {isSimulation ? 'SIMULATOR' : 'LIVE ACC'}
+                  </button>
+                </div>
+
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Target Ticker</label>
                   <input 
@@ -235,8 +268,8 @@ function App() {
 
           </div>
 
-          {/* Right Column: Execution Output Terminal & Live Logs */}
-          <div className="lg:col-span-2 space-y-8">
+          {/* Right Column: Dynamic Displays (Swimming Animation 2 - Offset Delay) */}
+          <div className="lg:col-span-2 space-y-8 animate-swim-delayed">
             
             {/* High-end Output Dashboard Panel */}
             {analysisResult ? (
@@ -307,7 +340,9 @@ function App() {
                       <>
                         <CheckCircle className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
                         <div>
-                          <strong className="block text-emerald-400 text-sm font-black">Bitget Order Executed Successfully</strong>
+                          <strong className="block text-emerald-400 text-sm font-black">
+                            {analysisResult.execution.isSimulation ? 'Simulated Position Opened' : 'Bitget Order Executed Successfully'}
+                          </strong>
                           <span className="text-xs text-slate-400 mt-1 block">ID: {analysisResult.execution.orderId} | Cost parameters: {analysisResult.execution.amountAllocated} USDT</span>
                         </div>
                       </>
@@ -325,7 +360,7 @@ function App() {
               </div>
             ) : (
               <div className="glass-card p-10 rounded-3xl text-center border-dashed border-white/10">
-                <Compass className="w-10 h-10 text-slate-500 mx-auto mb-4 animate-spin-slow" />
+                <Compass className="w-10 h-10 text-slate-500 mx-auto mb-4" />
                 <h3 className="text-md font-bold text-slate-300">Terminal Idle Mode</h3>
                 <p className="text-xs text-slate-400 mt-1.5 max-w-sm mx-auto">Initiate a coin analysis parameters in the control board to launch the real-time pipeline feed.</p>
               </div>
@@ -364,9 +399,9 @@ function App() {
                       <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t border-white/5 pt-3 md:pt-0 md:border-0">
                         <span className="text-2xs font-mono text-slate-400 font-bold">{new Date(log.timestamp).toLocaleTimeString()}</span>
                         {log.execution?.executed ? (
-                          <div className="flex items-center gap-1 text-2xs font-bold text-emerald-400 bg-emerald-950/40 px-3 py-1.5 rounded-xl border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]">
+                          <div className={`flex items-center gap-1 text-2xs font-bold px-3 py-1.5 rounded-xl border ${log.execution.isSimulation ? 'text-blue-400 bg-blue-950/40 border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]' : 'text-emerald-400 bg-emerald-950/40 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]'}`}>
                             <ArrowUpRight className="w-3.5 h-3.5" />
-                            FILLED
+                            {log.execution.isSimulation ? 'PAPER' : 'FILLED'}
                           </div>
                         ) : (
                           <div className="text-2xs font-bold text-slate-400 bg-white/5 px-3 py-1.5 rounded-xl border border-white/5">
