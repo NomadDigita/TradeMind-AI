@@ -25,71 +25,62 @@
   filter: blur(70px);
 }
 
-/* Apple-Grade Glassmorphism Card Core */
+/* Premium Apple-Grade Glassmorphism Core */
 .glass-card {
-  position: relative;
-  background: linear-gradient(135deg, rgba(13, 20, 38, 0.5) 0%, rgba(8, 12, 24, 0.3) 100%);
   backdrop-filter: blur(40px) saturate(220%);
   -webkit-backdrop-filter: blur(40px) saturate(220%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8);
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-}
-
-/* Subtle Diagonal Reflection Overlay */
-.glass-card::after {
-  content: '';
-  position: absolute;
-  top: -150%;
-  left: -150%;
-  width: 300%;
-  height: 300%;
-  background: linear-gradient(45deg, transparent 45%, rgba(255, 255, 255, 0.01) 48%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0.01) 52%, transparent 55%);
-  transform: rotate(0deg);
-  transition: transform 0.8s ease;
-  pointer-events: none;
-}
-
-.glass-card:hover::after {
-  transform: translate(30%, 30%);
 }
 
 .glass-card:hover {
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 35px 70px -10px rgba(0, 0, 0, 0.95), 0 0 40px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 35px 70px -10px rgba(0, 0, 0, 0.95), var(--shadow-glow, 0 0 30px rgba(59, 130, 246, 0.15));
   transform: translateY(-4px);
 }
 
-/* Gemini-Style Animated Rolling Light Border */
-@keyframes border-rotate {
-  100% { transform: rotate(1turn); }
+/* True Gemini Animated Border Light Tracing (Dual-Background Clip Method) */
+@keyframes gemini-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .gemini-card {
-  position: relative;
+  border: 1.5px solid transparent;
   border-radius: 24px;
+  background-size: 200% 200%;
+  animation: gemini-shift 6s ease infinite;
 }
 
-.gemini-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  padding: 1.5px; /* Border thickness */
-  background: conic-gradient(from 0deg, transparent 40%, rgba(59, 130, 246, 0.4) 65%, rgba(139, 92, 246, 0.6) 85%, rgba(16, 185, 129, 0.4) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  animation: border-rotate 10s linear infinite;
-  z-index: 10;
+/* Custom Gradient Configs for Each Card Type */
+.gemini-blue-purple {
+  background: linear-gradient(#0a0e1a, #060a14) padding-box, 
+              linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6) border-box;
+  --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.2);
+}
+
+.gemini-purple-pink {
+  background: linear-gradient(#0a0e1a, #060a14) padding-box, 
+              linear-gradient(135deg, #8b5cf6, #ec4899, #8b5cf6) border-box;
+  --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+.gemini-blue-green {
+  background: linear-gradient(#0a0e1a, #060a14) padding-box, 
+              linear-gradient(135deg, #3b82f6, #10b981, #3b82f6) border-box;
+  --shadow-glow: 0 0 30px rgba(16, 185, 129, 0.2);
+}
+
+.gemini-indigo-orange {
+  background: linear-gradient(#0a0e1a, #060a14) padding-box, 
+              linear-gradient(135deg, #6366f1, #f97316, #6366f1) border-box;
+  --shadow-glow: 0 0 30px rgba(99, 102, 241, 0.2);
 }
 
 /* Translucent Web3 Focus Inputs */
 .glass-input {
-  background: rgba(3, 5, 12, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: rgba(3, 5, 12, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -100,28 +91,28 @@
   box-shadow: 0 0 25px rgba(59, 130, 246, 0.18), inset 0 1px 0 0 rgba(255, 255, 255, 0.02);
 }
 
-/* Dynamic Swimming Card Keyframes (Enhanced Visual Presence) */
+/* Organic Swimming Card Animations */
 @keyframes float {
   0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-11px) rotate(0.4deg); }
+  50% { transform: translateY(-10px) rotate(0.4deg); }
   100% { transform: translateY(0px) rotate(0deg); }
 }
 
 @keyframes float-delayed {
   0% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(8px) rotate(-0.4deg); }
+  50% { transform: translateY(10px) rotate(-0.4deg); }
   100% { transform: translateY(0px) rotate(0deg); }
 }
 
 .animate-swim {
-  animation: float 7s ease-in-out infinite;
+  animation: float 8s ease-in-out infinite;
 }
 
 .animate-swim-delayed {
-  animation: float-delayed 8s ease-in-out infinite;
+  animation: float-delayed 9s ease-in-out infinite;
 }
 
-/* Custom Scrollbar for sleek UI container zones */
+/* Custom Scrollbar */
 .custom-scroll-container::-webkit-scrollbar {
   width: 5px;
 }
@@ -138,15 +129,15 @@
   background: rgba(255, 255, 255, 0.18);
 }
 
-/* Ambient Glass Snowfall Background Layer */
-@keyframes snow {
-  0% { transform: translateY(-10px) translateX(0px); opacity: 0; }
-  10% { opacity: 0.25; }
-  90% { opacity: 0.25; }
-  100% { transform: translateY(100vh) translateX(30px); opacity: 0; }
+/* Vivid Blockchain Connection Network Node Drops */
+@keyframes drift-up {
+  0% { transform: translateY(110vh) translateX(0px) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.35; }
+  90% { opacity: 0.35; }
+  100% { transform: translateY(-10vh) translateX(45px) rotate(360deg); opacity: 0; }
 }
 
-.ambient-snow-field {
+.ambient-blockchain-network {
   position: fixed;
   top: 0;
   left: 0;
@@ -157,17 +148,20 @@
   overflow: hidden;
 }
 
-.snow-particle {
+/* Node Styling */
+.blockchain-node {
   position: absolute;
-  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%);
-  border-radius: 50%;
-  animation: snow linear infinite;
+  border-radius: 4px;
+  animation: drift-up linear infinite;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.02) 100%);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
 }
 
-/* Particle distribution rules */
-.snow-particle:nth-child(1) { left: 8%; animation-duration: 16s; animation-delay: 0s; width: 4px; height: 4px; }
-.snow-particle:nth-child(2) { left: 22%; animation-duration: 20s; animation-delay: 3s; width: 5px; height: 5px; }
-.snow-particle:nth-child(3) { left: 40%; animation-duration: 13s; animation-delay: 1s; width: 3px; height: 3px; }
-.snow-particle:nth-child(4) { left: 58%; animation-duration: 24s; animation-delay: 5s; width: 5px; height: 5px; }
-.snow-particle:nth-child(5) { left: 72%; animation-duration: 17s; animation-delay: 2s; width: 4px; height: 4px; }
-.snow-particle:nth-child(6) { left: 88%; animation-duration: 21s; animation-delay: 4s; width: 5px; height: 5px; }
+/* Node layout and offset sizes */
+.blockchain-node:nth-child(1) { left: 5%; width: 20px; height: 20px; animation-duration: 22s; animation-delay: 0s; }
+.blockchain-node:nth-child(2) { left: 18%; width: 14px; height: 14px; animation-duration: 28s; animation-delay: 4s; }
+.blockchain-node:nth-child(3) { left: 35%; width: 28px; height: 28px; animation-duration: 18s; animation-delay: 1s; border-color: rgba(16, 185, 129, 0.25); }
+.blockchain-node:nth-child(4) { left: 55%; width: 16px; height: 16px; animation-duration: 32s; animation-delay: 8s; }
+.blockchain-node:nth-child(5) { left: 70%; width: 22px; height: 22px; animation-duration: 25s; animation-delay: 2s; border-color: rgba(139, 92, 246, 0.25); }
+.blockchain-node:nth-child(6) { left: 85%; width: 15px; height: 15px; animation-duration: 30s; animation-delay: 5s; }
