@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { CONFIG } from '../config/constants';
+import { CONFIG } from '../config/constants.js';
 import { BitgetService } from './bitgetService.js';
 import { AnalyzerService } from './analyzerService.js';
 
