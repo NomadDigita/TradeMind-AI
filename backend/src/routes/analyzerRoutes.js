@@ -4,7 +4,6 @@ import { HistoryService } from '../services/historyService.js';
 
 const router = Router();
 
-// Retrieve all rolling trading logs
 router.get('/history', (req, res) => {
   return res.json({
     success: true,
@@ -13,7 +12,7 @@ router.get('/history', (req, res) => {
 });
 
 router.post('/analyze', async (req, res) => {
-  const { asset, autoExecute, amount } = req.body;
+  const { asset, autoExecute, amount, isSimulation } = req.body;
 
   if (!asset) {
     return res.status(400).json({ error: 'Missing parameter: asset (ticker symbol, e.g. BTC) is required.' });
@@ -22,7 +21,8 @@ router.post('/analyze', async (req, res) => {
   const result = await AnalyzerService.runPipeline(
     asset.toUpperCase(),
     autoExecute || false,
-    amount || 10
+    amount || 10,
+    isSimulation || false // Set default to false if not specified
   );
   
   if (!result.success) {

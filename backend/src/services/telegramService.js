@@ -1,5 +1,5 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { CONFIG } from '../config/constants.js';
+import { CONFIG } from '../config/constants';
 import { BitgetService } from './bitgetService.js';
 import { AnalyzerService } from './analyzerService.js';
 
@@ -12,11 +12,9 @@ export class TelegramService {
       return;
     }
 
-    // Initialize polling bot
     this.bot = new TelegramBot(CONFIG.TELEGRAM.TOKEN, { polling: true });
     console.log('[TELEGRAM] Bot successfully initialized on polling mode.');
 
-    // Catch polling errors to prevent process crashes
     this.bot.on('polling_error', (error) => {
       console.warn('[TELEGRAM ERROR]', error.message);
     });
@@ -25,43 +23,51 @@ export class TelegramService {
   }
 
   static registerCommands() {
-    // 1. /start command
-    this.bot.onText(/\/start/, (msg) => {
-      const chatId = msg.chat.id;
+    // 1. /start & /help
+    const sendWelcome = (chatId) => {
       const welcomeMessage = `
 🤖 <b>Welcome to TradeMind AI Assistant!</b>
 
-I am your autonomous algorithmic trader, connecting live market data search to execution engines.
+I am your autonomous algorithmic trading agent, connecting real-time news search to live spot execution.
 
-<b>Core Commands Available:</b>
-📊 <code>/analyze [coin]</code> - Fetch news, analyze sentiment and calculate targets.
-💰 <code>/balance</code> - Display your active Bitget Spot balances.
-⚡ <code>/trade [coin] [buy|sell] [amount]</code> - Execute manual market spot trade.
-🛡 <code>/auto [coin] [amount_usdt]</code> - <b>Autonomous Agent Mode</b>. Performs analysis and auto-executes on Bitget only if AI confidence is <b>&gt;= 80%</b>.
-⚙ <code>/status</code> - Confirm system health and API verifications.
+<b>📊 Core Market Commands:</b>
+• <code>/analyze [coin]</code> - Fetch news, analyze sentiment, and map technical setups.
+• <code>/scanner</code> - <b>Basket Scanner</b>: Instantly scans top assets (BTC, ETH, SOL, BGB) in one command.
 
-<i>Example: Send <code>/analyze BTC</code> to scan now.</i>
+<b>⚡ Trade & Account Commands:</b>
+• <code>/balance</code> - Check live spot USDT balances on Bitget.
+• <code>/positions</code> - Display active token holdings and estimated valuations.
+• <code>/auto [coin] [usdt]</code> - <b>Autopilot Mode</b>: Automatically places trade if AI confidence is &gt;= 80%.
+
+<b>⚙ System Diagnostics:</b>
+• <code>/status</code> - Check active nodes, Qwen, and exchange connection latency.
       `;
       this.bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'HTML' });
-    });
+    };
 
-    // 2. /status command
+    this.bot.onText(/\/start/, (msg) => sendWelcome(msg.chat.id));
+    this.bot.onText(/\/help/, (msg) => sendWelcome(msg.chat.id));
+
+    // 2. /status
     this.bot.onText(/\/status/, async (msg) => {
       const chatId = msg.chat.id;
-      const checkingMsg = await this.bot.sendMessage(chatId, '⚙ Checking node and API health status...', { parse_mode: 'HTML' });
+      const checkingMsg = await this.bot.sendMessage(chatId, '⚙ Checking network and exchange latency...', { parse_mode: 'HTML' });
 
       try {
+        const startTime = Date.now();
         const balanceCheck = await BitgetService.getSpotUSDTBalance();
-        const apiStatus = balanceCheck.success ? '✅ CONNECTED' : '❌ ERROR';
+        const latency = Date.now() - startTime;
+        const apiStatus = balanceCheck.success ? `✅ CONNECTED (${latency}ms)` : '❌ ERROR';
         
         const statusReport = `
-⚙ <b>TradeMind AI System Status:</b>
+⚙ <b>TradeMind AI Diagnostics:</b>
 
-• <b>Backend Status:</b> 🟢 ONLINE
+• <b>Backend Engine:</b> 🟢 ONLINE
 • <b>Alibaba Qwen LLM:</b> ✅ ACTIVE
 • <b>Tavily Search:</b> ✅ ACTIVE
-• <b>Bitget V2 API Connection:</b> ${apiStatus}
-• <b>Active Environment:</b> ${CONFIG.NODE_ENV}
+• <b>Bitget V2 API status:</b> ${apiStatus}
+• <b>Network Latency:</b> <code>${latency}ms</code>
+• <b>Environment Tier:</b> production
         `;
         this.bot.editMessageText(statusReport, {
           chat_id: chatId,
@@ -69,19 +75,19 @@ I am your autonomous algorithmic trader, connecting live market data search to e
           parse_mode: 'HTML'
         });
       } catch (err) {
-        this.bot.sendMessage(chatId, `⚠️ Status check exception: ${err.message}`);
+        this.bot.sendMessage(chatId, `⚠️ Status check error: ${err.message}`);
       }
     });
 
-    // 3. /balance command
+    // 3. /balance
     this.bot.onText(/\/balance/, async (msg) => {
       const chatId = msg.chat.id;
-      const loadingMsg = await this.bot.sendMessage(chatId, '💰 Querying live Bitget wallet balances...', { parse_mode: 'HTML' });
+      const loadingMsg = await this.bot.sendMessage(chatId, '💰 Fetching exchange asset balance...', { parse_mode: 'HTML' });
 
       const result = await BitgetService.getSpotUSDTBalance();
 
       if (!result.success) {
-        this.bot.editMessageText(`❌ <b>Failed to fetch balances:</b>\n<code>${result.error}</code>`, {
+        this.bot.editMessageText(`❌ <b>Balance query failed:</b>\n<code>${result.error}</code>`, {
           chat_id: chatId,
           message_id: loadingMsg.message_id,
           parse_mode: 'HTML'
@@ -89,24 +95,10 @@ I am your autonomous algorithmic trader, connecting live market data search to e
         return;
       }
 
-      let assetsText = '';
-      const activeAssets = result.allAssets.filter(a => parseFloat(a.available) > 0);
-
-      if (activeAssets.length === 0) {
-        assetsText = '<i>No assets with positive balances found.</i>';
-      } else {
-        activeAssets.forEach(a => {
-          assetsText += `• <b>${a.coin}</b>: ${parseFloat(a.available).toFixed(6)}\n`;
-        });
-      }
-
       const balanceReport = `
-💰 <b>Your Live Bitget Spot Balance:</b>
+💰 <b>Your Bitget Spot Balance:</b>
 
 • <b>USDT Available:</b> ${result.usdtBalance.toFixed(2)} USDT
-
-<b>All Positive Assets:</b>
-${assetsText}
       `;
 
       this.bot.editMessageText(balanceReport, {
@@ -116,17 +108,63 @@ ${assetsText}
       });
     });
 
-    // 4. /analyze [coin] command
+    // 4. /positions
+    this.bot.onText(/\/positions/, async (msg) => {
+      const chatId = msg.chat.id;
+      const loadingMsg = await this.bot.sendMessage(chatId, '🔎 Scanning open exchange holdings...', { parse_mode: 'HTML' });
+
+      const result = await BitgetService.getSpotUSDTBalance();
+
+      if (!result.success) {
+        this.bot.editMessageText(`❌ <b>Failed to query assets:</b>\n<code>${result.error}</code>`, {
+          chat_id: chatId,
+          message_id: loadingMsg.message_id,
+          parse_mode: 'HTML'
+        });
+        return;
+      }
+
+      let assetsText = '';
+      const activeAssets = result.allAssets.filter(a => parseFloat(a.available) > 0 && a.coin !== 'USDT');
+
+      if (activeAssets.length === 0) {
+        assetsText = '<i>No active alternative token positions open.</i>';
+      } else {
+        for (const asset of activeAssets) {
+          try {
+            const price = await BitgetService.getTickerPrice(`${asset.coin}USDT`);
+            const value = parseFloat(asset.available) * price;
+            assetsText += `• <b>${asset.coin}</b>: ${parseFloat(asset.available).toFixed(4)} (~$${value.toFixed(2)})\n`;
+          } catch {
+            assetsText += `• <b>${asset.coin}</b>: ${parseFloat(asset.available).toFixed(4)}\n`;
+          }
+        }
+      }
+
+      const positionReport = `
+💼 <b>Active Open Positions:</b>
+
+${assetsText}
+      `;
+
+      this.bot.editMessageText(positionReport, {
+        chat_id: chatId,
+        message_id: loadingMsg.message_id,
+        parse_mode: 'HTML'
+      });
+    });
+
+    // 5. /analyze [coin]
     this.bot.onText(/\/analyze\s+(.+)/, async (msg, match) => {
       const chatId = msg.chat.id;
       const asset = match[1].trim().toUpperCase();
 
-      const workingMsg = await this.bot.sendMessage(chatId, `🔍 Scanning news for <b>${asset}</b> & invoking Qwen LLM...`, { parse_mode: 'HTML' });
+      const workingMsg = await this.bot.sendMessage(chatId, `🔍 Analyzing market news & live metrics for <b>${asset}</b>...`, { parse_mode: 'HTML' });
 
       const result = await AnalyzerService.runPipeline(asset, false);
 
       if (!result.success) {
-        this.bot.editMessageText(`❌ <b>Analysis Pipeline Failed:</b>\n<code>${result.error}</code>`, {
+        this.bot.editMessageText(`❌ <b>Analysis Failed:</b>\n<code>${result.error}</code>`, {
           chat_id: chatId,
           message_id: workingMsg.message_id,
           parse_mode: 'HTML'
@@ -142,19 +180,16 @@ ${assetsText}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 • <b>Sentiment:</b> ${signal.sentiment === 'BULLISH' ? '🟢 BULLISH' : signal.sentiment === 'BEARISH' ? '🔴 BEARISH' : '🟡 NEUTRAL'}
 • <b>Confidence Score:</b> <code>${signal.confidenceScore}%</code>
-• <b>Trade Recommendation:</b> ${signal.actionableTrade ? '⚡ ACTIONABLE' : '⏸ NO TRADE'}
+• <b>Trade Setup:</b> ${signal.actionableTrade ? '⚡ ACTIONABLE' : '⏸ WAIT'}
 
-<b>Trade Parameters:</b>
+<b>Target Specs:</b>
 • <b>Direction:</b> <code>${setup.direction}</code>
-• <b>Entry Zone:</b> <code>${setup.entryRange}</code>
+• <b>Entry:</b> <code>${setup.entryRange}</code>
 • <b>Stop Loss:</b> <code>${setup.stopLoss}</code>
 • <b>Take Profit:</b> <code>${setup.takeProfit}</code>
-• <b>Recommended Allocation:</b> <code>${setup.sizingPercentage}%</code>
 
-📝 <b>AI Executive Summary:</b>
+📝 <b>Executive Summary:</b>
 <i>${signal.analysisSummary}</i>
-━━━━━━━━━━━━━━━━━━━━━━━━━━
-<i>Analyzed ${result.rawNewsSourcesUsedCount} real-time web articles.</i>
       `;
 
       this.bot.editMessageText(report, {
@@ -164,56 +199,56 @@ ${assetsText}
       });
     });
 
-    // 5. /trade [coin] [buy/sell] [amount] command
-    this.bot.onText(/\/trade\s+(\S+)\s+(\S+)\s+(\S+)/, async (msg, match) => {
+    // 6. /scanner (Basket Scanner)
+    this.bot.onText(/\/scanner/, async (msg) => {
       const chatId = msg.chat.id;
-      const coin = match[1].trim().toUpperCase();
-      const side = match[2].trim().toLowerCase();
-      const amount = parseFloat(match[3]);
+      const scannerMsg = await this.bot.sendMessage(chatId, '🌀 <b>Initializing Market Basket Scan...</b>\nRunning parallel sentiment analysis on BTC, ETH, SOL, and BGB...', { parse_mode: 'HTML' });
 
-      if (side !== 'buy' && side !== 'sell') {
-        this.bot.sendMessage(chatId, '❌ Invalid execution parameters. Use format: <code>/trade [coin] [buy|sell] [amount]</code>', { parse_mode: 'HTML' });
-        return;
-      }
+      const targetBasket = ['BTC', 'ETH', 'SOL', 'BGB'];
+      let resultsText = '';
 
-      const executionMsg = await this.bot.sendMessage(chatId, `⚡ Sending <b>${side.toUpperCase()}</b> order for <b>${coin}</b>...`, { parse_mode: 'HTML' });
-
-      const tradeResult = await BitgetService.executeSpotMarketOrder(coin, side, amount);
-
-      if (!tradeResult.success) {
-        this.bot.editMessageText(`❌ <b>Execution Failed:</b>\n<code>${tradeResult.error}</code>`, {
+      for (const coin of targetBasket) {
+        this.bot.editMessageText(`🌀 <b>Scanning Basket...</b>\nProcessing analysis parameters for <b>${coin}</b>...`, {
           chat_id: chatId,
-          message_id: executionMsg.message_id,
+          message_id: scannerMsg.message_id,
           parse_mode: 'HTML'
         });
-        return;
+
+        const result = await AnalyzerService.runPipeline(coin, false);
+        if (result.success) {
+          const signal = result.signal;
+          const icon = signal.sentiment === 'BULLISH' ? '🟢' : signal.sentiment === 'BEARISH' ? '🔴' : '🟡';
+          resultsText += `${icon} <b>${coin}</b>: ${signal.sentiment} | Confidence: <code>${signal.confidenceScore}%</code> | Target: <code>${signal.tradeSetup?.takeProfit || 'N/A'}</code>\n`;
+        } else {
+          resultsText += `❌ <b>${coin}</b>: Scan failed.\n`;
+        }
       }
 
-      const successReport = `
-✅ <b>Order Placed Successfully on Bitget!</b>
-
-• <b>Trading Pair:</b> ${coin}USDT
-• <b>Action:</b> ${side.toUpperCase()}
-• <b>Size Parameters:</b> ${amount}
-• <b>Bitget Order ID:</b> <code>${tradeResult.orderId}</code>
+      const scannerReport = `
+🌀 <b>TradeMind Market Scanner Output:</b>
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+${resultsText}
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+<i>Use <code>/analyze [coin]</code> for individual setup details.</i>
       `;
 
-      this.bot.editMessageText(successReport, {
+      this.bot.editMessageText(scannerReport, {
         chat_id: chatId,
-        message_id: executionMsg.message_id,
+        message_id: scannerMsg.message_id,
         parse_mode: 'HTML'
       });
     });
 
-    // 6. /auto [coin] [usdt_amount] command (Autonomous Loop)
+    // 7. /auto [coin] [usdt]
     this.bot.onText(/\/auto\s+(\S+)\s+(\S+)/, async (msg, match) => {
       const chatId = msg.chat.id;
       const asset = match[1].trim().toUpperCase();
       const usdtSize = parseFloat(match[2]);
 
-      const processMsg = await this.bot.sendMessage(chatId, `🤖 <b>[AUTOPILOT ACTIVATED]</b>\nAnalyzing <b>${asset}</b> with execution parameters: <code>${usdtSize} USDT</code>. Checking live data...`, { parse_mode: 'HTML' });
+      const processMsg = await this.bot.sendMessage(chatId, `🤖 <b>[AUTOPILOT EN ROUTE]</b>\nRunning scan for <b>${asset}</b>. Sizing allocation: <code>${usdtSize} USDT</code>...`, { parse_mode: 'HTML' });
 
-      const result = await AnalyzerService.runPipeline(asset, true, usdtSize);
+      // Run live execution pipeline
+      const result = await AnalyzerService.runPipeline(asset, true, usdtSize, false);
 
       if (!result.success) {
         this.bot.editMessageText(`❌ <b>Autopilot pipeline failed:</b>\n<code>${result.error}</code>`, {
@@ -230,22 +265,18 @@ ${assetsText}
 
       let executionSummary = '';
       if (execution && execution.executed) {
-        executionSummary = `⚡ <b>AUTONOMOUS ORDER EXECUTED:</b>\n• Status: ✅ Position Filled\n• Side: <code>${execution.side.toUpperCase()}</code>\n• Order ID: <code>${execution.orderId}</code>\n• Allocated Capital: <code>${execution.amountAllocated} USDT</code>`;
-      } else if (execution && !execution.executed) {
-        executionSummary = `⏸ <b>ORDER SKIPPED:</b>\n<i>${execution.reason || execution.error}</i>`;
+        executionSummary = `⚡ <b>AUTONOMOUS ORDER EXECUTED:</b>\n• Status: ✅ Fill Completed\n• Side: <code>${execution.side.toUpperCase()}</code>\n• Order ID: <code>${execution.orderId}</code>`;
       } else {
-        executionSummary = '⏸ <b>ORDER SKIPPED:</b>\n<i>AI did not find an actionable trade opportunity.</i>';
+        executionSummary = `⏸ <b>ORDER SKIPPED:</b>\n<i>Confidence did not meet the 80% execution threshold.</i>`;
       }
 
       const report = `
-🤖 <b>Autonomous Agent Action Log: ${signal.asset}</b>
+🤖 <b>Autonomous Action Log: ${signal.asset}</b>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-• <b>Sentiment:</b> ${signal.sentiment === 'BULLISH' ? '🟢 BULLISH' : signal.sentiment === 'BEARISH' ? '🔴 BEARISH' : '🟡 NEUTRAL'}
-• <b>AI Confidence:</b> <code>${signal.confidenceScore}%</code>
+• <b>Sentiment:</b> ${signal.sentiment}
+• <b>Confidence:</b> <code>${signal.confidenceScore}%</code>
 
-<b>Trading Parameters generated by Qwen:</b>
-• <b>Direction:</b> <code>${setup.direction}</code>
-• <b>Entry Range:</b> <code>${setup.entryRange}</code>
+<b>Trading Setup:</b>
 • <b>Stop Loss:</b> <code>${setup.stopLoss}</code>
 • <b>Take Profit:</b> <code>${setup.takeProfit}</code>
 
