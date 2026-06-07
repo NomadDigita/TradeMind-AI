@@ -2,6 +2,7 @@ import { TavilyService } from './tavilyService.js';
 import { QwenService } from './qwenService.js';
 import { BitgetService } from './bitgetService.js';
 import { HistoryService } from './historyService.js';
+import { PositionService } from './positionService.js';
 
 export class AnalyzerService {
   /**
@@ -16,13 +17,11 @@ export class AnalyzerService {
     try {
       console.log(`[PIPELINE] Starting ${isSimulation ? 'SIMULATED' : 'LIVE'} analysis pipeline for ${asset}...`);
       
-      // Fetch Live Market Ticker metrics from Bitget first
       let tickerMetrics = null;
       try {
         const symbol = `${asset.toUpperCase()}USDT`;
         const lastPrice = await BitgetService.getTickerPrice(symbol);
         
-        // Target V2 tickers endpoints for high/low stats
         const response = await fetch(`https://api.bitget.com/api/v2/spot/market/tickers?symbol=${symbol}`).then(r => r.json());
         if (response.code === '00000' && response.data?.[0]) {
           const raw = response.data[0];
@@ -37,7 +36,6 @@ export class AnalyzerService {
         console.warn('[PIPELINE WARNING] Failed to retrieve live ticker stats, moving forward with news only:', tickerErr.message);
       }
 
-      // Step 1: Query real-time news search
       const searchQuery = `${asset} crypto token price news update`;
       const newsResults = await TavilyService.searchMarketNews(searchQuery);
 
@@ -49,17 +47,14 @@ export class AnalyzerService {
         };
       }
 
-      // Step 2: Compile news context
       const formattedContext = newsResults
         .map((n, i) => `[Source ${i+1}]: ${n.title}\nContent: ${n.content}\nURL: ${n.url}\n`)
         .join('\n');
 
-      // Step 3: Call Qwen for deep logical assessment (grounded with live ticker metrics)
       const structuredSignal = await QwenService.analyzeSentimentAndGenerateSignal(formattedContext, asset, tickerMetrics);
 
       let executionReceipt = null;
 
-      // Step 4: Autonomous Execution Logic
       if (autoExecute && structuredSignal.actionableTrade) {
         const setup = structuredSignal.tradeSetup;
         const confidence = structuredSignal.confidenceScore;
@@ -71,25 +66,26 @@ export class AnalyzerService {
           const side = direction === 'LONG' ? 'buy' : 'sell';
           
           if (isSimulation) {
-            // Simulated Paper Trade
+            // Open Position in Ledger
+            const pos = await PositionService.openPosition(asset, direction, autoSizeUsdt, true);
             executionReceipt = {
               side,
               executed: true,
-              orderId: `sim_order_${Math.random().toString(36).substring(2, 9)}`,
+              orderId: pos.id,
               amountAllocated: autoSizeUsdt,
               isSimulation: true
             };
-            console.log(`[SIMULATOR] Successfully tracked paper position for ${asset}: ${side} of ${autoSizeUsdt} USDT`);
           } else {
             // Live Trade Execution on Bitget
             console.log(`[AGENT EXECUTION] Triggering trade on Bitget. Coin: ${asset}, Side: ${side}, Size: ${autoSizeUsdt}`);
             const tradeResult = await BitgetService.executeSpotMarketOrder(asset, side, autoSizeUsdt);
             
             if (tradeResult.success) {
+              const pos = await PositionService.openPosition(asset, direction, autoSizeUsdt, false);
               executionReceipt = {
                 side,
                 executed: true,
-                orderId: tradeResult.orderId,
+                orderId: pos.id,
                 amountAllocated: autoSizeUsdt,
                 isSimulation: false
               };
@@ -116,7 +112,6 @@ export class AnalyzerService {
         execution: executionReceipt
       };
 
-      // Push logs to history database memory
       HistoryService.addLog({
         asset,
         sentiment: structuredSignal.sentiment,

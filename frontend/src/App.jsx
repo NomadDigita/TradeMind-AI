@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   CircleDot,
   Terminal,
-  Compass
+  Compass,
+  XCircle
 } from 'lucide-react';
 
 const BACKEND_URL = 'https://trademind-ai-ye41.onrender.com';
@@ -23,6 +24,7 @@ const BACKEND_URL = 'https://trademind-ai-ye41.onrender.com';
 function App() {
   const [balance, setBalance] = useState({ usdtBalance: 0, allAssets: [] });
   const [history, setHistory] = useState([]);
+  const [positions, setPositions] = useState([]); // Stores open ledger positions with P&L
   const [searchAsset, setSearchAsset] = useState('BTC');
   const [autoExecute, setAutoExecute] = useState(false);
   const [tradeAmount, setTradeAmount] = useState(10);
@@ -49,6 +51,12 @@ function App() {
       if (historyRes.data.success) {
         setHistory(historyRes.data.logs);
       }
+
+      // Retrieve positions ledger data
+      const positionsRes = await axios.get(`${BACKEND_URL}/api/v1/bitget/positions`);
+      if (positionsRes.data.success) {
+        setPositions(positionsRes.data.positions);
+      }
     } catch (error) {
       console.error('Connection issue with backend:', error.message);
       setBackendStatus('offline');
@@ -59,7 +67,8 @@ function App() {
 
   useEffect(() => {
     fetchDashboardData();
-    const interval = setInterval(fetchDashboardData, 30000);
+    // High-frequency poll (every 10s) to keep live pricing and PnL highly accurate
+    const interval = setInterval(fetchDashboardData, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -84,6 +93,19 @@ function App() {
       alert('Failed to complete analysis pipeline. Confirm backend connection and API keys.');
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleClosePosition = async (positionId) => {
+    if (!confirm('Are you sure you want to terminate this active position?')) return;
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/v1/bitget/close`, { id: positionId });
+      if (response.data.success) {
+        alert('Position successfully closed!');
+        fetchDashboardData();
+      }
+    } catch (err) {
+      alert(`Close failed: ${err.message}`);
     }
   };
 
@@ -270,9 +292,61 @@ function App() {
 
           </div>
 
-          {/* Right Column (Swimming Animation 2 - Offset Delay) */}
+          {/* Right Column: Dynamic Displays (Swimming Animation 2) */}
           <div className="lg:col-span-2 space-y-6 md:space-y-8 animate-swim-delayed">
             
+            {/* Live Positions Tracker Card */}
+            {positions.length > 0 && (
+              <div className="gemini-card gemini-blue-purple">
+                <div className="glass-card p-6 rounded-3xl">
+                  <h2 className="text-xs font-extrabold tracking-wider uppercase mb-4 flex items-center gap-2 text-slate-300">
+                    <TrendingUp className="w-4.5 h-4.5 text-blue-400" />
+                    Active Positions Tracker
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {positions.map((pos) => (
+                      <div key={pos.id} className="bg-slate-950/65 border border-white/5 p-4 rounded-2xl flex flex-col justify-between gap-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <span className="text-sm font-black text-white">{pos.coin}USDT</span>
+                            <span className={`text-3xs px-2 py-0.5 rounded-full font-black ml-2 border ${pos.side === 'LONG' ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/20' : 'bg-rose-950/40 text-rose-400 border-rose-500/20'}`}>
+                              {pos.side}
+                            </span>
+                            <span className="text-3xs text-slate-400 block mt-1">
+                              {pos.isSimulation ? '🧪 simulated' : '⚡ live execution'}
+                            </span>
+                          </div>
+                          
+                          <div className="text-right">
+                            <span className={`text-sm font-black block ${pos.pnlPercentage >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {pos.pnlPercentage >= 0 ? '+' : ''}{pos.pnlPercentage}%
+                            </span>
+                            <span className="text-3xs text-slate-400 font-mono mt-0.5 block">
+                              ${pos.currentPrice}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center border-t border-white/5 pt-3">
+                          <div className="text-3xs text-slate-400">
+                            Entry: <strong className="text-slate-200">${pos.entryPrice}</strong> | Cost: <strong className="text-slate-200">{pos.sizeUsdt} USDT</strong>
+                          </div>
+                          
+                          <button
+                            onClick={() => handleClosePosition(pos.id)}
+                            className="flex items-center gap-1 bg-rose-600/10 hover:bg-rose-600/20 active:scale-95 text-rose-400 border border-rose-500/20 px-2.5 py-1.5 rounded-xl text-3xs font-extrabold transition-all cursor-pointer"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* High-end Output Dashboard Panel (Wrapped in Blue-Green gemini border glow) */}
             {analysisResult ? (
               <div className="gemini-card gemini-blue-green">
@@ -332,7 +406,7 @@ function App() {
                   </div>
 
                   {/* LLM detailed analysis summary */}
-                  <div className="text-xs md:text-sm bg-slate-950/50 p-4 rounded-2xl border border-white/5 text-slate-300 leading-relaxed italic mb-5">
+                  <div className="text-xs md:text-sm bg-slate-950/50 p-4.5 rounded-2xl border border-white/5 text-slate-300 leading-relaxed italic mb-5">
                     "{analysisResult.signal?.analysisSummary}"
                   </div>
 
