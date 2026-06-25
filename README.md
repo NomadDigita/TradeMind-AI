@@ -1,16 +1,19 @@
 # TradeMind AI — Autonomous Sentiment-to-Execution Trading Agent
 
+---
 
 <div align="center">
 
 ![Next.js](https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![HTML5](https://img.shields.io/badge/html5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![Alibaba Cloud](https://img.shields.io/badge/Alibaba_Cloud-FF6A00?style=for-the-badge&logo=alibabacloud&logoColor=white)
 
 </div>
 
 ---
+
 TradeMind AI is an autonomous, sentiment-driven algorithmic trading agent designed for the **Bitget AI Base Camp Hackathon S1 (Track 1: Trading Agent · For Traders)**. 
 
 The platform translates unstructured live web data (financial news, coin-specific catalysts, and macro updates) alongside live mathematical exchange metrics (24h high/low, price velocity, and trading volumes) into structured, risk-managed spot trades executed natively via the Bitget V2 API. 
