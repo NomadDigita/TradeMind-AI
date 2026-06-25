@@ -14,8 +14,8 @@ export class RadarService {
     
     console.log('[RADAR SERVICE] Background Market Radar successfully initialized.');
     
-    // Scan every 15 minutes (900,000 ms)
-    const scanInterval = 15 * 60 * 1000;
+    // Optimized: Scan every 4 hours (4 * 60 * 60 * 1000 ms) to conserve API tokens
+    const scanInterval = 4 * 60 * 60 * 1000;
     
     this.intervalTimer = setInterval(() => {
       this.executeRadarScan();

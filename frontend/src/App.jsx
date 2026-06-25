@@ -19,7 +19,8 @@ import {
   XCircle
 } from 'lucide-react';
 
-const BACKEND_URL = 'https://trademind-ai-ye41.onrender.com';
+// Live production Render URL (Updated)
+const BACKEND_URL = 'https://trademind-ai-8nrr.onrender.com';
 
 function App() {
   const [balance, setBalance] = useState({ usdtBalance: 0, allAssets: [] });
@@ -110,16 +111,16 @@ function App() {
   };
 
   return (
-    <div className="relative min-h-screen px-4 pb-8 md:px-12 md:pb-10">
+    <div className="relative min-h-screen px-4 py-6 md:px-12 md:py-10">
       
-      {/* Vivid Blockchain Connection Network Node Drops */}
-      <div className="ambient-blockchain-network">
-        <div className="blockchain-node"></div>
-        <div className="blockchain-node"></div>
-        <div className="blockchain-node"></div>
-        <div className="blockchain-node"></div>
-        <div className="blockchain-node"></div>
-        <div className="blockchain-node"></div>
+      {/* Dynamic Digital Snowfall Layer */}
+      <div className="ambient-snow-field">
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
+        <div className="snow-particle"></div>
       </div>
 
       {/* Background radial blobs */}
