@@ -1,6 +1,3 @@
-
-
-```markdown
 # TradeMind AI — Autonomous Sentiment-to-Execution Trading Agent
 
 TradeMind AI is an autonomous, sentiment-driven algorithmic trading agent designed for the **Bitget AI Base Camp Hackathon S1 (Track 1: Trading Agent · For Traders)**. 
