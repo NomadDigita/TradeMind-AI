@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@tavily/core": "^0.0.2",
-    "axios": "^1.6.8",
+    "axios": "^1.18.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
